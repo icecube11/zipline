@@ -2,8 +2,8 @@
 classifier.py
 """
 
-from zipline.modelling.term import Term
+from zipline.modelling.term import CompositeTerm
 
 
-class Classifier(Term):
+class Classifier(CompositeTerm):
     pass

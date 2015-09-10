@@ -259,7 +259,15 @@ class SimpleFFCEngine(object):
         offset = graph.extra_rows[mask] - graph.extra_rows[term]
         return workspace[mask][offset:], dates[offset:]
 
-    def _inputs_for_term(self, term, workspace, graph):
+    def _mask_for_atomic_terms(self, terms, workspace, graph):
+        max_extra_rows = max(graph.extra_rows[term] for term in terms)
+
+        mask = self._root_mask_term
+        offset = graph.extra_rows[mask] - max_extra_rows
+        return workspace[mask].iloc[offset:]
+
+    @staticmethod
+    def _inputs_for_term(term, workspace, graph):
         """
         Compute inputs for the given term.
 
@@ -291,6 +299,12 @@ class SimpleFFCEngine(object):
                 input_data = input_data[offset:]
             out.append(input_data)
         return out
+
+    @staticmethod
+    def _atomic_dataset_terms(graph, match):
+        for term in graph.atomic_terms:
+            if term.dataset == match.dataset:
+                yield term
 
     def compute_chunk(self, graph, dates, assets, initial_workspace):
         """
@@ -329,15 +343,9 @@ class SimpleFFCEngine(object):
             if term in workspace:
                 continue
 
-            # Asset labels are always the same, but date labels vary by how
-            # many extra rows are needed.
-            mask, mask_dates = self._mask_and_dates_for_term(
-                term, workspace, graph, dates
-            )
             if term.atomic:
-                # FUTURE OPTIMIZATION: Scan the resolution order for terms in
-                # the same dataset and load them here as well.
-                to_load = [term]
+                to_load = list(self._atomic_dataset_terms(graph, term))
+                mask = self._mask_for_atomic_terms(to_load, workspace, graph)
                 loaded = loader.load_adjusted_array(
                     to_load, mask_dates, assets, mask,
                 )
@@ -345,6 +353,11 @@ class SimpleFFCEngine(object):
                 for loaded_term, adj_array in zip_longest(to_load, loaded):
                     workspace[loaded_term] = adj_array
             else:
+                # Asset labels are always the same, but date labels vary by how
+                # many extra rows are needed.
+                mask, mask_dates = self._mask_and_dates_for_term(
+                    term, workspace, graph, dates
+                )
                 workspace[term] = term._compute(
                     self._inputs_for_term(term, workspace, graph),
                     mask_dates,
