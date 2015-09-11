@@ -223,7 +223,7 @@ class TradingAlgorithm(object):
 
         # Pull in the environment's new AssetFinder for quick reference
         self.asset_finder = self.trading_environment.asset_finder
-        self.init_engine(kwargs.pop('ffc_loader', None))
+        self.init_engine(kwargs.pop('ffc_loader_dispatch', None))
 
         # Maps from name to Term
         self._filters = {}
@@ -315,15 +315,15 @@ class TradingAlgorithm(object):
         self.initialize_args = args
         self.initialize_kwargs = kwargs
 
-    def init_engine(self, loader):
+    def init_engine(self, loader_dispatch):
         """
         Construct and save an FFCEngine from loader.
 
         If loader is None, constructs a NoOpFFCEngine.
         """
-        if loader is not None:
+        if loader_dispatch is not None:
             self.engine = SimpleFFCEngine(
-                loader,
+                loader_dispatch,
                 self.trading_environment.trading_days,
                 self.asset_finder,
             )

@@ -94,7 +94,7 @@ class BaseFFCTestCase(TestCase):
             Mapping from termname -> computed result.
         """
         engine = SimpleFFCEngine(
-            ExplodingObject(),
+            lambda column: ExplodingObject(),
             self.__calendar,
             self.__finder,
         )

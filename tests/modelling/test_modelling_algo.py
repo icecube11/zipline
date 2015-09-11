@@ -185,7 +185,7 @@ class ClosesOnly(TestCase):
             handle_data=handle_data,
             before_trading_start=before_trading_start,
             data_frequency='daily',
-            ffc_loader=self.ffc_loader,
+            ffc_loader_dispatch=lambda column: self.ffc_loader,
             start=self.first_asset_start - trading_day,
             end=self.last_asset_end + trading_day,
             env=self.env,
@@ -380,7 +380,7 @@ class FFCAlgorithmTestCase(TestCase):
             handle_data=handle_data,
             before_trading_start=before_trading_start,
             data_frequency='daily',
-            ffc_loader=self.ffc_loader,
+            ffc_loader_dispatch=lambda column: self.ffc_loader,
             start=self.dates[max(window_lengths)],
             end=self.dates[-1],
         )
