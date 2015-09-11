@@ -86,11 +86,16 @@ def to_dict(l):
 
 class DependencyResolutionTestCase(TestCase):
 
-    def setup(self):
-        pass
+    def check_dependency_order(self, ordered_terms):
+        seen = set()
 
-    def teardown(self):
-        pass
+        for term in ordered_terms:
+            if not term.atomic:
+                for input_ in term.inputs:
+                    self.assertIn(input_, seen)
+                self.assertIn(term.mask, seen)
+
+            seen.add(term)
 
     def test_single_factor(self):
         """
@@ -101,12 +106,12 @@ class DependencyResolutionTestCase(TestCase):
             resolution_order = list(graph.ordered())
 
             self.assertEqual(len(resolution_order), 4)
-            self.assertIs(resolution_order[0], AssetExists())
-            self.assertEqual(
-                set([resolution_order[1], resolution_order[2]]),
-                set([SomeDataSet.foo, SomeDataSet.bar]),
-            )
-            self.assertEqual(resolution_order[-1], SomeFactor())
+            self.check_dependency_order(resolution_order)
+            self.assertIn(AssetExists(), resolution_order)
+            self.assertIn(SomeDataSet.foo, resolution_order)
+            self.assertIn(SomeDataSet.bar, resolution_order)
+            self.assertIn(SomeFactor(), resolution_order)
+
             self.assertEqual(graph.node[SomeDataSet.foo]['extra_rows'], 4)
             self.assertEqual(graph.node[SomeDataSet.bar]['extra_rows'], 4)
 
@@ -125,18 +130,14 @@ class DependencyResolutionTestCase(TestCase):
 
         # SomeFactor, its inputs, and AssetExists()
         self.assertEqual(len(resolution_order), 4)
-
-        self.assertIs(resolution_order[0], AssetExists())
+        self.check_dependency_order(resolution_order)
+        self.assertIn(AssetExists(), resolution_order)
         self.assertEqual(graph.extra_rows[AssetExists()], 4)
 
-        self.assertEqual(
-            set([resolution_order[1], resolution_order[2]]),
-            set([bar, buzz]),
-        )
-        self.assertEqual(
-            resolution_order[-1],
-            SomeFactor([bar, buzz], window_length=5),
-        )
+        self.assertIn(bar, resolution_order)
+        self.assertIn(buzz, resolution_order)
+        self.assertIn(SomeFactor([bar, buzz], window_length=5),
+                      resolution_order)
         self.assertEqual(graph.extra_rows[bar], 4)
         self.assertEqual(graph.extra_rows[buzz], 4)
 
