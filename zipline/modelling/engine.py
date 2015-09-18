@@ -259,12 +259,12 @@ class SimpleFFCEngine(object):
         offset = graph.extra_rows[mask] - graph.extra_rows[term]
         return workspace[mask][offset:], dates[offset:]
 
-    def _mask_for_atomic_terms(self, terms, workspace, graph):
+    def _mask_and_dates_for_atomic_terms(self, terms, workspace, graph, dates):
         max_extra_rows = max(graph.extra_rows[term] for term in terms)
 
         mask = self._root_mask_term
         offset = graph.extra_rows[mask] - max_extra_rows
-        return workspace[mask].iloc[offset:]
+        return workspace[mask][offset:], dates[offset:]
 
     @staticmethod
     def _inputs_for_term(term, workspace, graph):
@@ -356,7 +356,9 @@ class SimpleFFCEngine(object):
                 loader = loader_dispatch(term)
                 to_load = sorted(self._atomic_terms_for_loader(graph, loader),
                                  key=lambda t: t.dataset)
-                mask = self._mask_for_atomic_terms(to_load, workspace, graph)
+                mask, mask_dates = self._mask_and_dates_for_atomic_terms(
+                    to_load, workspace, graph, dates
+                )
                 loaded = loader.load_adjusted_array(
                     to_load, mask_dates, assets, mask,
                 )
