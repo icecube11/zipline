@@ -17,5 +17,5 @@ class FFCLoader(with_metaclass(ABCMeta)):
     TODO: DOCUMENT THIS MORE!
     """
     @abstractmethod
-    def load_adjusted_array(self, columns, mask):
+    def load_adjusted_array(self, columns, dates, assets, mask):
         pass
