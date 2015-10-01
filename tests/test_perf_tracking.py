@@ -1729,10 +1729,6 @@ shares in position"
         pt.execute_transaction(sale_txn)
         pp.handle_execution(sale_txn)
 
-<<<<<<< HEAD
-=======
-        pp.calculate_performance(trades[-1].dt)
->>>>>>> 8f316c7... more tests
         self.assertEqual(
             pt.positions[1].last_sale_price,
             10,

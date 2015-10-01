@@ -254,7 +254,6 @@ class PerformanceTracker(object):
             self.position_tracker.positions, pos_stats)
         self._account = self.cumulative_performance.as_account(
             pos_stats, period_stats)
-        return self._account
 
     def to_dict(self):
         """
