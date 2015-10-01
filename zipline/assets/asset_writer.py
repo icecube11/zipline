@@ -56,7 +56,7 @@ _root_symbols_defaults = {
 }
 
 # Fuzzy symbol delimiters that may break up a company symbol and share class
-_delimited_symbol_delimiter_regex = r'[./\-_]'
+_delimited_symbol_delimiter_regex = re.compile(r'[./\-_]')
 _delimited_symbol_default_triggers = frozenset({np.nan, None, ''})
 
 
@@ -78,11 +78,11 @@ def split_delimited_symbol(symbol):
     """
     # return blank strings for any bad fuzzy symbols, like NaN or None
     if symbol in _delimited_symbol_default_triggers:
-        return ('', '', '')
+        return '', '', ''
 
-    split_list = re.split(pattern=_delimited_symbol_delimiter_regex,
-                          string=symbol,
-                          maxsplit=1)
+    split_list = _delimited_symbol_delimiter_regex.split(
+        string=symbol, maxsplit=1,
+    )
 
     # Break the list up in to its two components, the company symbol and the
     # share class symbol
@@ -93,11 +93,11 @@ def split_delimited_symbol(symbol):
         share_class_symbol = ''
 
     # Strip all fuzzy characters from the symbol to get the fuzzy symbol
-    fuzzy_symbol = re.sub(pattern=_delimited_symbol_delimiter_regex,
-                          repl='',
-                          string=symbol)
+    fuzzy_symbol = _delimited_symbol_delimiter_regex.sub(
+        repl='', string=symbol,
+    )
 
-    return (company_symbol, share_class_symbol, fuzzy_symbol)
+    return company_symbol, share_class_symbol, fuzzy_symbol
 
 
 def _generate_output_dataframe(data_subset, defaults):
