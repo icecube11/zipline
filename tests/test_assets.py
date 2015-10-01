@@ -927,3 +927,13 @@ class TestFutureChain(TestCase):
         # ValueError.
         with self.assertRaises(ValueError):
             cl.offset("blah")
+
+    def test_lookup_future_symbol(self):
+        """
+        Test the lookup_future_symbol method.
+        """
+        cl = self.asset_finder.lookup_future_symbol('CLG06')
+        self.assertEqual(cl.sid, 0)
+
+        with self.assertRaises(SymbolNotFound):
+            self.asset_finder.lookup_future_symbol('XXX99')

@@ -137,7 +137,8 @@ class AssetFinder(object):
         self.select_equity_by_sid = select_equity_by_sid
 
         _future_sid = futures_contracts.c.sid
-        _future_by_sid = sa.select(
+        _future_symbol = futures_contracts.c.symbol
+        _future_select = sa.select(
             tuple(map(
                 partial(getitem, futures_contracts.c),
                 FUTURE_TABLE_FIELDS,
@@ -145,9 +146,13 @@ class AssetFinder(object):
         )
 
         def select_future_by_sid(sid):
-            return _future_by_sid.where(_future_sid == int(sid))
+            return _future_select.where(_future_sid == int(sid))
+
+        def select_future_by_symbol(symbol):
+            return _future_select.where(_future_symbol == symbol)
 
         self.select_future_by_sid = select_future_by_sid
+        self.select_future_by_symbol = select_future_by_symbol
         # Cache for lookup of assets by sid, the objects in the asset lookp may
         # be shared with the results from equity and future lookup caches.
         #
@@ -363,6 +368,48 @@ class AssetFinder(object):
                         sids,
                     ))
                 )
+
+    def lookup_future_symbol(self, symbol):
+        """ Return the Future object for a given symbol.
+
+        Parameters
+        ----------
+        symbol : str
+            The symbol of the desired contract.
+
+        Returns
+        -------
+        Future
+            A Future object.
+
+        Raises
+        ------
+        SymbolNotFound
+            Raised when no contract named 'symbol' is found.
+
+        """
+
+        data = self.select_future_by_symbol(symbol).execute().fetchone()
+
+        # If no data found, raise an exception
+        if not data:
+            raise SymbolNotFound(symbol=symbol)
+
+        # If we find a contract, check whether it's been cached
+        try:
+            return self._future_cache[data['sid']]
+        except KeyError:
+            pass
+
+        # Build the Future object from its parameters
+        data = dict(data.items())
+        _convert_asset_timestamp_fields(data)
+        future = Future(**data)
+
+        # Cache the Future object.
+        self._future_cache[data['sid']] = future
+
+        return future
 
     def lookup_future_chain(self, root_symbol, as_of_date, knowledge_date):
         """ Return the futures chain for a given root symbol.
