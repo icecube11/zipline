@@ -1664,7 +1664,7 @@ shares in position"
         )
         history_args = (
             1,
-            [10, 11, 11, 12, 10.0],
+            [10, 11, 11, 12, 10],
             [100, 100, 100, 100, 100],
             oneday,
             sim_params,
@@ -1685,7 +1685,7 @@ shares in position"
             self.env.asset_finder,
             data_portal,
             period_open=sim_params.period_start,
-            period_close=sim_params.trading_days[-2]
+            period_close=sim_params.trading_days[-1]
         )
 
         average_cost = 0
@@ -1694,9 +1694,6 @@ shares in position"
             pp.handle_execution(txn)
             average_cost = (average_cost * i + txn.price) / (i + 1)
             self.assertEqual(pt.positions[1].cost_basis, average_cost)
-
-        for trade in trades:
-            pt.update_last_sale(trade)
 
         self.assertEqual(
             pt.positions[1].last_sale_price,
@@ -1731,8 +1728,11 @@ shares in position"
 
         pt.execute_transaction(sale_txn)
         pp.handle_execution(sale_txn)
-        pt.update_last_sale(down_tick)
 
+<<<<<<< HEAD
+=======
+        pp.calculate_performance(trades[-1].dt)
+>>>>>>> 8f316c7... more tests
         self.assertEqual(
             pt.positions[1].last_sale_price,
             10,
