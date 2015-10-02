@@ -266,9 +266,9 @@ class PerformanceTracker(object):
         pos_stats = self.position_tracker.stats(self.data_portal,
                                                 self.period_end)
         cumulative_stats = self.cumulative_performance.stats(
-            self.position_tracker.positions, pos_stats)
+            self.data_portal, self.position_tracker.positions, pos_stats)
         todays_stats = self.todays_performance.stats(
-            self.position_tracker.positions, pos_stats)
+            self.data_portal, self.position_tracker.positions, pos_stats)
 
         return self._to_dict(pos_stats,
                              cumulative_stats,
@@ -457,9 +457,9 @@ class PerformanceTracker(object):
 
         pos_stats = self.position_tracker.stats(self.data_portal, dt)
         cumulative_stats = self.cumulative_performance.stats(
-            self.position_tracker.positions, pos_stats)
+            self.data_portal, self.position_tracker.positions, pos_stats)
         todays_stats = self.todays_performance.stats(
-            self.position_tracker.positions, pos_stats)
+            self.data_portal, self.position_tracker.positions, pos_stats)
 
         self.cumulative_risk_metrics.update(todays_date,
                                             todays_stats.returns,
@@ -490,7 +490,7 @@ class PerformanceTracker(object):
         pos_stats = self.position_tracker.stats(self.data_portal,
                                                 completed_date)
         todays_stats = self.todays_performance.stats(
-            self.position_tracker.positions, pos_stats)
+            self.data_portal, self.position_tracker.positions, pos_stats)
         account = self.get_account(completed_date)
 
         # update risk metrics for cumulative performance
