@@ -452,6 +452,7 @@ class PositionTracker(object):
             position.cost_basis = pos.cost_basis
             position.last_sale_price =\
                 self._data_portal.get_spot_price(sid, 'close', dt)
+            position.last_sale_date = pos.last_sale_date
         return positions
 
     def get_positions_list(self):
