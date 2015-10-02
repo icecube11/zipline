@@ -2364,7 +2364,6 @@ class TestPerformancePeriod(unittest.TestCase):
         env = TradingEnvironment()
         pt = perf.PositionTracker(env.asset_finder, data_portal=None)
         pp = perf.PerformancePeriod(100, env.asset_finder, data_portal=None)
-        pp.position_tracker = pt
 
         p_string = dumps_with_persistent_ids(pp)
         test = loads_with_persistent_ids(p_string, env=env)
