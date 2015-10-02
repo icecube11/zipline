@@ -1695,9 +1695,11 @@ shares in position"
             average_cost = (average_cost * i + txn.price) / (i + 1)
             self.assertEqual(pt.positions[1].cost_basis, average_cost)
 
+        dt = trades[-2].dt
+        positions = pt.get_positions(dt)
         self.assertEqual(
-            pt.positions[1].last_sale_price,
-            trades[-1].price,
+            positions[1].last_sale_price,
+            trades[-2].price,
             "should have a last sale of 12, got {val}".format(
                 val=pt.positions[1].last_sale_price)
         )
@@ -1708,8 +1710,8 @@ shares in position"
             "should have a cost basis of 11"
         )
 
-        pos_stats = pt.stats()
-        pp_stats = pp.stats(pos_stats)
+        pos_stats = pt.stats(data_portal, dt)
+        pp_stats = pp.stats(pt.get_positions(dt), pos_stats)
 
         self.assertEqual(
             pp_stats.pnl,
@@ -1729,11 +1731,14 @@ shares in position"
         pt.execute_transaction(sale_txn)
         pp.handle_execution(sale_txn)
 
+        dt = down_tick.dt
+        positions = pt.get_positions(dt)
+
         self.assertEqual(
-            pt.positions[1].last_sale_price,
+            positions[1].last_sale_price,
             10,
             "should have a last sale of 10, was {val}".format(
-                val=pt.positions[1].last_sale_price)
+                val=positions[1].last_sale_price)
         )
 
         self.assertEqual(
@@ -1742,14 +1747,15 @@ shares in position"
             "should have a cost basis of 11"
         )
 
-        pos_stats = pt.stats()
-        pp_stats = pp.stats(pos_stats)
+        pos_stats = pt.stats(data_portal, dt)
+        pp_stats = pp.stats(pt.get_positions(dt), pos_stats)
 
         self.assertEqual(pp_stats.pnl, -800,
                          "this period goes from +400 to -400")
 
-        pt3 = perf.PositionTracker(self.env.asset_finder)
-        pp3 = perf.PerformancePeriod(1000.0, self.env.asset_finder)
+        pt3 = perf.PositionTracker(self.env.asset_finder, data_portal)
+        pp3 = perf.PerformancePeriod(1000.0, self.env.asset_finder,
+                                     data_portal)
 
         average_cost = 0
         for i, txn in enumerate(transactions):
@@ -1777,8 +1783,8 @@ shares in position"
             "should have a cost basis of 11"
         )
 
-        pt3_stats = pt3.stats()
-        pp3_stats = pp3.stats(pt3_stats)
+        pt3_stats = pt3.stats(data_portal, dt)
+        pp3_stats = pp3.stats(pt3.get_positions(dt), pt3_stats)
 
         self.assertEqual(
             pp3_stats.pnl,

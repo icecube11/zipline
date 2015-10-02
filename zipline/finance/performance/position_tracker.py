@@ -428,7 +428,7 @@ class PositionTracker(object):
         )
         return txn
 
-    def get_positions(self):
+    def get_positions(self, dt):
 
         positions = self._positions_store
 
@@ -451,7 +451,7 @@ class PositionTracker(object):
             position.amount = pos.amount
             position.cost_basis = pos.cost_basis
             position.last_sale_price =\
-                self._data_portal.get_spot_price(sid, 'close')
+                self._data_portal.get_spot_price(sid, 'close', dt)
         return positions
 
     def get_positions_list(self):

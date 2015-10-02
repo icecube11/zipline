@@ -262,6 +262,8 @@ class PerformancePeriod(object):
         return -1 * txn.price * txn.amount * multiplier
 
     def stats(self, positions, pos_stats):
+        # TODO: passing positions here seems off, since we have already
+        # calculated pos_stats.
         futures_payouts = []
         for sid, pos in positions.iteritems():
             asset = self.asset_finder.retrieve_asset(sid)

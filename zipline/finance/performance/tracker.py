@@ -242,7 +242,7 @@ class PerformanceTracker(object):
         position_tracker = self.position_tracker
         pos_stats = position_tracker.stats(self.data_portal, dt)
         period_stats = self.cumulative_performance.stats(
-            position_tracker.positions, pos_stats)
+            position_tracker.get_positions(dt), pos_stats)
         return self.cumulative_performance.as_portfolio(
             pos_stats,
             period_stats,
@@ -251,7 +251,7 @@ class PerformanceTracker(object):
     def get_account(self, dt):
         pos_stats = self.position_tracker.stats(self.data_portal, dt)
         period_stats = self.cumulative_performance.stats(
-            self.position_tracker.positions, pos_stats)
+            self.position_tracker.get_positions(dt), pos_stats)
         self._account = self.cumulative_performance.as_account(
             pos_stats, period_stats)
         return self._account
