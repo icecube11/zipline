@@ -220,7 +220,7 @@ def calculate_results(sim_params,
             pass
 
         msg = perf_tracker.handle_market_close_daily()
-        msg['account'] = perf_tracker.get_account(True)
+        msg['account'] = perf_tracker.get_account(date)
         results.append(msg)
     return results
 
